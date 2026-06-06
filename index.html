@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Alice's Kids 15th Anniversary Timeline</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest" defer></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        teal: {
+                            50: '#e6f5f5',
+                            100: '#b3e0e1',
+                            200: '#80cbcc',
+                            300: '#4db6b8',
+                            400: '#1aa1a3',
+                            500: '#0D7377',
+                            600: '#0b6265',
+                            700: '#094f52',
+                            800: '#073c3e',
+                            900: '#042929',
+                        },
+                        amber: {
+                            50: '#fef5eb',
+                            100: '#fce6c8',
+                            200: '#f9d4a0',
+                            300: '#f7c179',
+                            400: '#F4A261',
+                            500: '#e08c3e',
+                            600: '#c47628',
+                            700: '#a05f1a',
+                            800: '#7c4910',
+                            900: '#5a3409',
+                        },
+                        cream: {
+                            50: '#FFFFFF',
+                            100: '#FEF9EF',
+                            200: '#fdf3df',
+                            300: '#fcedc',
+                            400: '#f8e3c0',
+                        },
+                        coral: {
+                            50: '#fdf0ec',
+                            100: '#f9d5cb',
+                            200: '#f4b8a7',
+                            300: '#ee9a83',
+                            400: '#E76F51',
+                            500: '#d45a3c',
+                            600: '#b8452b',
+                            700: '#99351e',
+                            800: '#7a2814',
+                            900: '#5c1d0d',
+                        },
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                },
+            },
+        };
+    </script>
+    <style>
+        :root {
+            --teal: #0D7377;
+            --teal-dark: #094f52;
+            --teal-light: #b3e0e1;
+            --amber: #F4A261;
+            --amber-light: #fce6c8;
+            --cream: #FEF9EF;
+            --coral: #E76F51;
+            --coral-light: #f9d5cb;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--cream);
+            color: #1a1a1a;
+            margin: 0;
+        }
+
+        /* Timeline shimmer */
+        @keyframes shimmer {
+            0% { background-position: -200% center; }
+            100% { background-position: 200% center; }
+        }
+        .timeline-line-h {
+            height: 4px;
+            background: linear-gradient(90deg, var(--amber), var(--teal), var(--amber), var(--teal), var(--amber));
+            background-size: 200% 100%;
+            animation: shimmer 6s ease-in-out infinite;
+        }
+        .timeline-line-v {
+            width: 4px;
+            background: linear-gradient(180deg, var(--amber), var(--teal), var(--amber), var(--teal), var(--amber));
+            background-size: 100% 200%;
+            animation: shimmerV 6s ease-in-out infinite;
+        }
+        @keyframes shimmerV {
+            0% { background-position: center -200%; }
+            100% { background-position: center 200%; }
+        }
+
+        /* Pulse glow for 15th anniversary */
+        @keyframes pulseGlow {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(244,162,97,0.5), 0 0 15px rgba(244,162,97,0.3); }
+            50% { box-shadow: 0 0 0 10px rgba(244,162,97,0), 0 0 25px rgba(244,162,97,0.5); }
+        }
+        .pulse-glow {
+            animation: pulseGlow 2s ease-in-out infinite;
+        }
+
+        /* Glow ring for highlights */
+        .highlight-ring {
+            box-shadow: 0 0 0 4px rgba(244,162,97,0.5), 0 0 12px rgba(244,162,97,0.3);
+        }
+
+        /* Node hover */
+        .milestone-node {
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            cursor: pointer;
+        }
+        .milestone-node:hover {
+            transform: scale(1.12);
+            box-shadow: 0 0 0 4px rgba(244,162,97,0.4), 0 4px 16px rgba(13,115,119,0.25);
+        }
+        .milestone-node:focus-visible {
+            outline: 3px solid var(--amber);
+            outline-offset: 3px;
+        }
+
+        /* Modal animation */
+        .modal-backdrop {
+            opacity: 0;
+            transition: opacity 0.25s ease;
+        }
+        .modal-backdrop.active { opacity: 1; }
+
+        .modal-card {
+            transform: scale(0.9);
+            opacity: 0;
+            transition: transform 0.25s ease, opacity 0.25s ease;
+        }
+        .modal-backdrop.active .modal-card {
+            transform: scale(1);
+            opacity: 1;
+        }
+
+        /* Horizontal scroll track */
+        .timeline-track::-webkit-scrollbar {
+            height: 6px;
+        }
+        .timeline-track::-webkit-scrollbar-track {
+            background: rgba(13,115,119,0.08);
+            border-radius: 999px;
+        }
+        .timeline-track::-webkit-scrollbar-thumb {
+            background: rgba(13,115,119,0.25);
+            border-radius: 999px;
+        }
+        .timeline-track::-webkit-scrollbar-thumb:hover {
+            background: rgba(13,115,119,0.4);
+        }
+
+        /* Drag active */
+        .timeline-track.dragging {
+            cursor: grabbing;
+            user-select: none;
+        }
+        .timeline-track {
+            cursor: grab;
+        }
+
+        /* Reduced motion */
+        @media (prefers-reduced-motion: reduce) {
+            .timeline-line-h, .timeline-line-v { animation: none; }
+            .pulse-glow { animation: none; }
+            .milestone-node { transition: none; }
+            .modal-card { transition: none; }
+            .modal-backdrop { transition: none; }
+        }
+
+        /* Vertical timeline mobile */
+        @media (max-width: 767px) {
+            .desktop-timeline { display: none !important; }
+            .mobile-timeline { display: block !important; }
+        }
+        @media (min-width: 768px) {
+            .desktop-timeline { display: block !important; }
+            .mobile-timeline { display: none !important; }
+        }
+
+        /* Scroll arrows */
+        .scroll-arrow {
+            transition: opacity 0.2s ease, background 0.2s ease;
+        }
+        .scroll-arrow:hover {
+            background: var(--teal-dark) !important;
+        }
+    </style>
+</head>
+<body data-id="0" class="min-h-screen flex flex-col">
+    <app-icon data-id="1" hidden data-icon="heart" data-palette="Earth"></app-icon>
+
+    <!-- Main Content -->
+    <main data-id="2" class="flex-1">
+        <!-- Desktop Horizontal Timeline -->
+        <section data-id="3" id="timeline-desktop-r4x8" class="desktop-timeline py-12 md:py-20 px-4 relative" style="display:none;">
+            <h2 data-id="4" class="text-center text-xl md:text-2xl font-bold mb-12" style="color: var(--teal);">Our Journey</h2>
+
+            <div data-id="5" class="relative max-w-7xl mx-auto">
+                <!-- Scroll Left Arrow -->
+                <button data-id="6" id="scroll-left-btn-k2m9" class="scroll-arrow absolute left-0 top-1/2 -translate-y-1/2 z-20 w-10 h-10 md:w-12 md:h-12 rounded-full flex items-center justify-center text-white shadow-lg opacity-0 pointer-events-none" style="background: var(--teal);" aria-label="Scroll timeline left">
+                    <i data-id="7" data-lucide="chevron-left" class="w-5 h-5 md:w-6 md:h-6"></i>
+                </button>
+                <!-- Scroll Right Arrow -->
+                <button data-id="8" id="scroll-right-btn-p5n7" class="scroll-arrow absolute right-0 top-1/2 -translate-y-1/2 z-20 w-10 h-10 md:w-12 md:h-12 rounded-full flex items-center justify-center text-white shadow-lg opacity-0 pointer-events-none" style="background: var(--teal);" aria-label="Scroll timeline right">
+                    <i data-id="9" data-lucide="chevron-right" class="w-5 h-5 md:w-6 md:h-6"></i>
+                </button>
+
+                <div data-id="10" id="timeline-track-h1z5" class="timeline-track overflow-x-auto pb-6 px-12" style="scroll-behavior: smooth;">
+                    <div data-id="11" class="relative" style="min-width: 1400px; height: 320px;">
+                        <!-- The horizontal line -->
+                        <div data-id="12" class="timeline-line-h absolute left-0 right-0 rounded-full" style="top: 150px;"></div>
+                        <!-- Nodes will be injected by JS -->
+                        <div data-id="13" id="desktop-nodes-container-w8v3" class="relative h-full"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Mobile Vertical Timeline -->
+        <section data-id="14" id="timeline-mobile-t5y1" class="mobile-timeline py-10 px-4" style="display:none;">
+            <h2 data-id="15" class="text-center text-xl font-bold mb-8" style="color: var(--teal);">Our Journey</h2>
+            <div data-id="16" class="relative max-w-lg mx-auto pl-8">
+                <!-- Vertical line -->
+                <div data-id="17" class="timeline-line-v absolute left-4 top-0 bottom-0 rounded-full"></div>
+                <div data-id="18" id="mobile-nodes-container-j6q2"></div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer data-id="19" id="footer-main-s5t2" class="py-8 px-4 text-center" style="background: var(--teal); color: white;">
+        <p data-id="20" class="text-sm font-medium mb-2">&copy; 2026 Alice's Kids &middot; All Rights Reserved</p>
+        <p data-id="21" class="text-xs opacity-70 mb-4">Use Tab to navigate milestones · Enter or Space to open · Escape to close</p>
+        <p data-id="22" class="text-xs opacity-50">Made by Copilot</p>
+    </footer>
+
+    <!-- Modal -->
+    <div data-id="23" id="milestone-modal-z3x7" class="modal-backdrop fixed inset-0 z-50 flex items-center justify-center p-4 hidden" style="background: rgba(4,41,41,0.6); backdrop-filter: blur(6px);" role="dialog" aria-modal="true" aria-labelledby="modal-title-c8r1" aria-describedby="modal-story-u5e2">
+        <div data-id="24" class="modal-card w-full max-w-lg rounded-3xl shadow-2xl overflow-hidden" style="background: var(--cream);">
+            <div data-id="25" class="relative p-6 md:p-8">
+                <!-- Close X -->
+                <button data-id="26" id="modal-close-x-a1b2" class="absolute top-4 right-4 w-9 h-9 rounded-full flex items-center justify-center hover:bg-teal-50 transition-colors" aria-label="Close milestone detail" style="color: var(--teal);">
+                    <i data-id="27" data-lucide="x" class="w-5 h-5"></i>
+                </button>
+                <!-- Icon -->
+                <div data-id="28" class="text-center mb-4">
+                    <span data-id="29" id="modal-icon-d4f6" class="text-5xl md:text-6xl block"></span>
+                </div>
+                <!-- Date -->
+                <p data-id="30" id="modal-date-r9s3" class="text-center text-sm font-semibold tracking-wide mb-1" style="color: var(--amber);"></p>
+                <!-- Title -->
+                <h3 data-id="31" id="modal-title-c8r1" class="text-center text-xl md:text-2xl font-bold mb-4" style="color: var(--teal);"></h3>
+                <!-- Divider -->
+                <div data-id="32" class="w-16 h-1 mx-auto rounded-full mb-5" style="background: linear-gradient(90deg, var(--amber), var(--coral));"></div>
+                <!-- Story -->
+                <p data-id="33" id="modal-story-u5e2" class="text-sm md:text-base leading-relaxed text-gray-700 mb-6"></p>
+                <!-- Bottom close -->
+                <div data-id="34" class="text-center">
+                    <button data-id="35" id="modal-close-btn-e3g5" class="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl text-white text-sm font-medium transition-all hover:opacity-90 hover:shadow-lg" style="background: var(--teal);">
+                        <i data-id="36" data-lucide="x" class="w-4 h-4"></i>
+                        Close
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ============================================================
+        // MILESTONES DATA — Edit this array to add or update milestones
+        // ============================================================
+        const MILESTONES = [
+            {
+                year: "2011",
+                month: "March",
+                title: "Alice's Kids Founded",
+                icon: "🌱",
+                story: "Alice Johnson gathered five friends around her kitchen table with a simple but powerful dream: every child deserves a warm coat and the dignity that comes with it. With $400 in seed money and an unstoppable spirit, Alice's Kids was born. The first coats were hand-distributed to 12 families in the local shelter.",
+                highlight: true
+            },
+            {
+                year: "2012",
+                month: "November",
+                title: "First Coat Drive",
+                icon: "🧥",
+                story: "Word spread fast. The inaugural Coat Drive collected over 300 gently used coats in just three weeks, thanks to 40 volunteers who staffed drop-off points across the city. Local schools, churches, and businesses rallied behind the cause, and every coat found a child who needed it before the first snow.",
+                highlight: false
+            },
+            {
+                year: "2013",
+                month: "June",
+                title: "501(c)(3) Status Granted",
+                icon: "📜",
+                story: "After months of paperwork, advocacy, and sheer determination, the IRS officially recognised Alice's Kids as a nonprofit organisation. This milestone unlocked grant eligibility, allowing the team to dream bigger. The celebration was a potluck in the park — humble and heartfelt.",
+                highlight: false
+            },
+            {
+                year: "2014",
+                month: "January",
+                title: "10,000 Coats Milestone",
+                icon: "🎉",
+                story: "Just three years in, Alice's Kids delivered their 10,000th coat. The recipient was a six-year-old named Marcus, who gave Alice a hug that she still talks about today. The milestone was covered in the local newspaper, bringing a wave of new donors and volunteers to the cause.",
+                highlight: true
+            },
+            {
+                year: "2015",
+                month: "April",
+                title: "School Supply Programme Launch",
+                icon: "🎒",
+                story: "Recognising that kids need more than warm coats to thrive, Alice's Kids launched its School Supply Programme. Backpacks filled with notebooks, pencils, crayons, and rulers were distributed to over 500 children before the new school year — ensuring no child would sit down at a desk without the tools to learn.",
+                highlight: false
+            },
+            {
+                year: "2017",
+                month: "September",
+                title: "Regional Expansion",
+                icon: "🗺️",
+                story: "What began in one city grew into five. Alice's Kids established partnerships with community organisations in four neighbouring counties, tripling their reach overnight. A network of regional coordinators — all volunteers — ensured that the warmth of the mission was delivered with a local touch.",
+                highlight: false
+            },
+            {
+                year: "2019",
+                month: "February",
+                title: "Annual Gala Fundraiser Launched",
+                icon: "✨",
+                story: "The first Annual Hope & Warmth Gala raised over $120,000 in a single evening. Community leaders, corporate sponsors, and longtime supporters came together in a celebration of the children whose lives had been changed. The gala has since become Alice's Kids' signature fundraising event and a beloved community tradition.",
+                highlight: false
+            },
+            {
+                year: "2020",
+                month: "April",
+                title: "COVID-19 Emergency Response",
+                icon: "💪",
+                story: "When the pandemic hit, Alice's Kids pivoted immediately. The team sourced masks, hygiene kits, and non-perishable food alongside their usual supplies. Without missing a single week of distribution, the organisation served over 8,000 families during the crisis — a testament to the resilience and heart of every volunteer.",
+                highlight: true
+            },
+            {
+                year: "2022",
+                month: "August",
+                title: "50,000 Children Served",
+                icon: "⭐",
+                story: "A landmark moment: Alice's Kids officially documented their 50,000th child served since founding. The milestone was marked by a community celebration in the park where it all started, featuring the very first volunteers, local officials, and hundreds of families whose children had been helped over the years.",
+                highlight: true
+            },
+            {
+                year: "2026",
+                month: "March",
+                title: "15th Anniversary Celebration",
+                icon: "🎂",
+                story: "Fifteen years. Fifty-five thousand children. Countless warm hugs. Alice's Kids marks a decade and a half of unwavering commitment to the children who need it most. From a kitchen table to a city-wide movement, the journey has been fuelled by love, community, and the simple belief that every child deserves to feel cared for. The best chapters are still ahead.",
+                highlight: true
+            }
+        ];
+
+        // ============================================================
+        // Icons guard
+        // ============================================================
+        if (typeof lucide !== "undefined" && typeof lucide.createIcons === "function") {
+            lucide.createIcons();
+        }
+
+        // ============================================================
+        // Render Desktop Timeline
+        // ============================================================
+        function renderDesktopTimeline() {
+            const container = document.getElementById('desktop-nodes-container-w8v3');
+            if (!container) return;
+            container.innerHTML = '';
+
+            const nodeWidth = 140;
+            const totalWidth = MILESTONES.length * nodeWidth;
+            container.parentElement.style.minWidth = Math.max(1400, totalWidth) + 'px';
+
+            MILESTONES.forEach((m, i) => {
+                const isAbove = i % 2 === 0;
+                const isLast = i === MILESTONES.length - 1;
+                const nodeSize = m.highlight ? 64 : 48;
+                const fontSize = m.highlight ? '1.5rem' : '1.125rem';
+                const leftPos = 40 + i * ((totalWidth - 80) / (MILESTONES.length - 1));
+
+                const nodeEl = document.createElement('div');
+                nodeEl.className = 'absolute flex flex-col items-center';
+                nodeEl.style.left = leftPos + 'px';
+                nodeEl.style.transform = 'translateX(-50%)';
+                nodeEl.style.width = '120px';
+
+                if (isAbove) {
+                    nodeEl.style.top = '0px';
+                    nodeEl.innerHTML = `
+                        <p class="text-xs font-semibold tracking-wide mb-1 text-center whitespace-nowrap" style="color: var(--amber);">${m.month} ${m.year}</p>
+                        <p class="text-xs font-medium text-center leading-tight mb-2 line-clamp-2" style="color: var(--teal-dark); display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;">${m.title}</p>
+                        <div class="milestone-node rounded-full flex items-center justify-center ${m.highlight ? 'highlight-ring' : ''} ${isLast ? 'pulse-glow' : ''}"
+                             style="width:${nodeSize}px; height:${nodeSize}px; background: var(--teal); font-size:${fontSize}; flex-shrink:0;"
+                             tabindex="0" role="button"
+                             aria-label="${m.title}, ${m.month} ${m.year}"
+                             data-index="${i}">
+                            <span>${m.icon}</span>
+                        </div>
+                        <div style="width:2px; height:${152 - 60 - (m.highlight ? 8 : 0)}px; background: var(--teal); opacity:0.25;"></div>
+                    `;
+                } else {
+                    nodeEl.style.top = '154px';
+                    nodeEl.innerHTML = `
+                        <div style="width:2px; height:${152 - 60 - (m.highlight ? 8 : 0)}px; background: var(--teal); opacity:0.25;"></div>
+                        <div class="milestone-node rounded-full flex items-center justify-center ${m.highlight ? 'highlight-ring' : ''} ${isLast ? 'pulse-glow' : ''}"
+                             style="width:${nodeSize}px; height:${nodeSize}px; background: var(--teal); font-size:${fontSize}; flex-shrink:0;"
+                             tabindex="0" role="button"
+                             aria-label="${m.title}, ${m.month} ${m.year}"
+                             data-index="${i}">
+                            <span>${m.icon}</span>
+                        </div>
+                        <p class="text-xs font-medium text-center leading-tight mt-2 line-clamp-2" style="color: var(--teal-dark); display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;">${m.title}</p>
+                        <p class="text-xs font-semibold tracking-wide mt-1 text-center whitespace-nowrap" style="color: var(--amber);">${m.month} ${m.year}</p>
+                    `;
+                }
+
+                container.appendChild(nodeEl);
+            });
+
+            // Attach node click/keyboard events
+            container.querySelectorAll('.milestone-node').forEach(node => {
+                node.addEventListener('click', () => {
+                    openModal(parseInt(node.dataset.index));
+                });
+                node.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        openModal(parseInt(node.dataset.index));
+                    }
+                });
+            });
+
+            // Re-initialize icons for dynamically created content
+            if (typeof lucide !== "undefined" && typeof lucide.createIcons === "function") {
+                lucide.createIcons();
+            }
+        }
+
+        // ============================================================
+        // Render Mobile Timeline
+        // ============================================================
+        function renderMobileTimeline() {
+            const container = document.getElementById('mobile-nodes-container-j6q2');
+            if (!container) return;
+            container.innerHTML = '';
+
+            MILESTONES.forEach((m, i) => {
+                const isLast = i === MILESTONES.length - 1;
+                const nodeSize = m.highlight ? 48 : 36;
+                const fontSize = m.highlight ? '1.25rem' : '1rem';
+
+                const card = document.createElement('div');
+                card.className = 'relative mb-6 pl-6';
+                card.innerHTML = `
+                    <div class="absolute -left-4 milestone-node rounded-full flex items-center justify-center ${m.highlight ? 'highlight-ring' : ''} ${isLast ? 'pulse-glow' : ''}"
+                         style="width:${nodeSize}px; height:${nodeSize}px; background: var(--teal); font-size:${fontSize}; top:4px; z-index:2;"
+                         tabindex="0" role="button"
+                         aria-label="${m.title}, ${m.month} ${m.year}"
+                         data-index="${i}">
+                        <span>${m.icon}</span>
+                    </div>
+                    <div class="rounded-2xl p-4 shadow-sm cursor-pointer hover:shadow-md transition-shadow" style="background: white; margin-left: 12px;" data-card-index="${i}">
+                        <p class="text-xs font-semibold tracking-wide mb-1" style="color: var(--amber);">${m.month} ${m.year}</p>
+                        <h4 class="text-sm font-bold mb-1" style="color: var(--teal);">${m.title}</h4>
+                        <p class="text-xs text-gray-500 leading-relaxed" style="display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;">${m.story}</p>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+
+            // Attach events
+            container.querySelectorAll('.milestone-node').forEach(node => {
+                node.addEventListener('click', () => openModal(parseInt(node.dataset.index)));
+                node.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        openModal(parseInt(node.dataset.index));
+                    }
+                });
+            });
+            container.querySelectorAll('[data-card-index]').forEach(card => {
+                card.addEventListener('click', () => openModal(parseInt(card.dataset.cardIndex)));
+            });
+        }
+
+        // ============================================================
+        // Modal
+        // ============================================================
+        const modal = document.getElementById('milestone-modal-z3x7');
+        let previouslyFocusedElement = null;
+
+        function openModal(index) {
+            const m = MILESTONES[index];
+            if (!m) return;
+
+            previouslyFocusedElement = document.activeElement;
+
+            document.getElementById('modal-icon-d4f6').textContent = m.icon;
+            document.getElementById('modal-date-r9s3').textContent = m.month + ' ' + m.year;
+            document.getElementById('modal-title-c8r1').textContent = m.title;
+            document.getElementById('modal-story-u5e2').textContent = m.story;
+
+            modal.classList.remove('hidden');
+            // Force reflow for animation
+            modal.offsetHeight;
+            modal.classList.add('active');
+
+            // Focus the close button
+            const closeX = document.getElementById('modal-close-x-a1b2');
+            if (closeX) closeX.focus();
+
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeModal() {
+            modal.classList.remove('active');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                document.body.style.overflow = '';
+                if (previouslyFocusedElement) {
+                    previouslyFocusedElement.focus();
+                }
+            }, 250);
+        }
+
+        document.getElementById('modal-close-x-a1b2').addEventListener('click', closeModal);
+        document.getElementById('modal-close-btn-e3g5').addEventListener('click', closeModal);
+
+        // Click outside modal card
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) closeModal();
+        });
+
+        // Escape key
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && !modal.classList.contains('hidden')) {
+                closeModal();
+            }
+        });
+
+        // Focus trap
+        modal.addEventListener('keydown', (e) => {
+            if (e.key !== 'Tab') return;
+            const focusable = modal.querySelectorAll('button, [tabindex]:not([tabindex="-1"])');
+            if (focusable.length === 0) return;
+            const first = focusable[0];
+            const last = focusable[focusable.length - 1];
+            if (e.shiftKey && document.activeElement === first) {
+                e.preventDefault();
+                last.focus();
+            } else if (!e.shiftKey && document.activeElement === last) {
+                e.preventDefault();
+                first.focus();
+            }
+        });
+
+        // ============================================================
+        // Horizontal Scroll: Drag + Arrows
+        // ============================================================
+        const track = document.getElementById('timeline-track-h1z5');
+        const scrollLeftBtn = document.getElementById('scroll-left-btn-k2m9');
+        const scrollRightBtn = document.getElementById('scroll-right-btn-p5n7');
+
+        if (track) {
+            let isDragging = false;
+            let startX, scrollLeft;
+
+            track.addEventListener('mousedown', (e) => {
+                if (e.target.closest('.milestone-node')) return;
+                isDragging = true;
+                track.classList.add('dragging');
+                startX = e.pageX - track.offsetLeft;
+                scrollLeft = track.scrollLeft;
+            });
+
+            track.addEventListener('mouseleave', () => {
+                isDragging = false;
+                track.classList.remove('dragging');
+            });
+
+            track.addEventListener('mouseup', () => {
+                isDragging = false;
+                track.classList.remove('dragging');
+            });
+
+            track.addEventListener('mousemove', (e) => {
+                if (!isDragging) return;
+                e.preventDefault();
+                const x = e.pageX - track.offsetLeft;
+                const walk = (x - startX) * 1.5;
+                track.scrollLeft = scrollLeft - walk;
+            });
+
+            // Touch drag
+            track.addEventListener('touchstart', (e) => {
+                startX = e.touches[0].pageX - track.offsetLeft;
+                scrollLeft = track.scrollLeft;
+            }, { passive: true });
+
+            track.addEventListener('touchmove', (e) => {
+                const x = e.touches[0].pageX - track.offsetLeft;
+                const walk = (x - startX) * 1.5;
+                track.scrollLeft = scrollLeft - walk;
+            }, { passive: true });
+
+            // Scroll arrows visibility
+            function updateArrows() {
+                if (!track) return;
+                const canScrollLeft = track.scrollLeft > 10;
+                const canScrollRight = track.scrollLeft < (track.scrollWidth - track.clientWidth - 10);
+
+                scrollLeftBtn.style.opacity = canScrollLeft ? '1' : '0';
+                scrollLeftBtn.style.pointerEvents = canScrollLeft ? 'auto' : 'none';
+                scrollRightBtn.style.opacity = canScrollRight ? '1' : '0';
+                scrollRightBtn.style.pointerEvents = canScrollRight ? 'auto' : 'none';
+            }
+
+            track.addEventListener('scroll', updateArrows);
+            window.addEventListener('resize', updateArrows);
+
+            scrollLeftBtn.addEventListener('click', () => {
+                track.scrollBy({ left: -300, behavior: 'smooth' });
+            });
+            scrollRightBtn.addEventListener('click', () => {
+                track.scrollBy({ left: 300, behavior: 'smooth' });
+            });
+
+            setTimeout(updateArrows, 100);
+        }
+
+        // ============================================================
+        // Initialize
+        // ============================================================
+        renderDesktopTimeline();
+        renderMobileTimeline();
+
+        // Re-init icons after dynamic render
+        if (typeof lucide !== "undefined" && typeof lucide.createIcons === "function") {
+            lucide.createIcons();
+        }
+    </script>
+</body>
+</html>
